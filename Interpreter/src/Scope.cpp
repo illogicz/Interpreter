@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Expression.h"
 #include "Scope.h"
-#include "Utils.h"
 #include "VariableMap.h"
 
 
@@ -46,18 +45,25 @@ bool Scope::defined(const Variable& v) {
 
 void Scope::dispose()
 {
+	if (disposed) return;
+	disposed = true;
 	for (auto& var : vars) {
 		if (var.second.closure) {
 			var.second.closure->dispose();
 		}
 	}
 	vars.clear();
+
+	//for (auto& var : vars) {
+	//	vars.erase(var.first);
+	//	if (var.second.closure) {
+	//		var.second.closure->dispose();
+	//	}
+	//}
 }
 
 void Scope::print() {
 	for (auto& var : vars) {
-		cout << VariableMap::get_name(var.first) << " = ";
-		var.second.print();
-		cout << std::endl;
+		cout << VariableMap::get_name(var.first) << " = " << string(var.second) << endl;
 	}
 };

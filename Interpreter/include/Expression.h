@@ -3,7 +3,6 @@
 #include "IEvalable.h"
 #include "Value.h"
 #include "Token.h"
-#include "Utils.h"
 #include "Scope.h"
 
 
@@ -31,7 +30,7 @@ class UnaryExpression : public IEvalable {
 		IEvalable::Uptr lh;
 	public:
 		UnaryExpression(Token::Type op, IEvalable::Uptr lh)
-			: op(op), lh(std::move(lh)) {};
+			: op(op), lh(move(lh)) {};
 		Value evaluate(Scope::Sptr scope);
 };
 
@@ -42,7 +41,7 @@ class BinaryExpression : public IEvalable {
 		IEvalable::Uptr rh;
 	public:
 		BinaryExpression(Token::Type op, IEvalable::Uptr lh, IEvalable::Uptr rh)
-			: op(op), lh(std::move(lh)), rh(std::move(rh)) {};
+			: op(op), lh(move(lh)), rh(move(rh)) {};
 		Value evaluate(Scope::Sptr scope);
 };
 
@@ -53,7 +52,7 @@ class AssignExpression : public IEvalable {
 		IEvalable::Uptr rh;
 	public:
 		AssignExpression(Token::Type op, Variable v, IEvalable::Uptr rh)
-			: op(op), rh(std::move(rh)), variable(v) {};
+			: op(op), rh(move(rh)), variable(v) {};
 		Value evaluate(Scope::Sptr scope);
 };
 
@@ -63,7 +62,7 @@ class DeclareExpression : public IEvalable {
 		IEvalable::Uptr rh;
 	public:
 		DeclareExpression(Variable v, IEvalable::Uptr rh)
-			: rh(std::move(rh)), variable(v) {};
+			: rh(move(rh)), variable(v) {};
 		Value evaluate(Scope::Sptr scope);
 };
 
@@ -100,7 +99,7 @@ class FunctionCall : public IEvalable {
 		vector<IEvalable*> arguments;
 	public:
 		FunctionCall(IEvalable::Uptr lh, vector<IEvalable*> arguments)
-			: lh(std::move(lh)), arguments(arguments) {
+			: lh(move(lh)), arguments(arguments) {
 		};
 		~FunctionCall();
 		Value evaluate(Scope::Sptr scope);

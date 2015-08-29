@@ -6,13 +6,16 @@
 #include "Statement.h"
 #include "IEvalable.h"
 #include "Jump.h"
-#include "Utils.h"
 
-Jump EmptyStatement::execute(Scope::Sptr scope) { return Jump(); }
+Jump EmptyStatement::execute(Scope::Sptr scope)  const 
+{ 
+	return Jump(); 
+}
 
 ExpressionStatement::ExpressionStatement(IEvalable::Uptr expression) 
-	: expression(std::move(expression)) {};
-Jump ExpressionStatement::execute(Scope::Sptr scope) {
+	: expression(move(expression)) {};
+Jump ExpressionStatement::execute(Scope::Sptr scope)  const 
+{
 	expression->evaluate(scope);
 	return Jump(Jump::NONE);
 };
@@ -21,17 +24,17 @@ Jump ExpressionStatement::execute(Scope::Sptr scope) {
 
 
 ConditionalStatement::ConditionalStatement(IEvalable::Uptr c, Statement* s)
-	: condition(std::move(c)), statement(s) {};
+	: condition(move(c)), statement(s) {};
 
 ConditionalStatement::ConditionalStatement(IEvalable::Uptr c, Statement* s, Statement* e)
-	: condition(std::move(c)), statement(s), else_statement(e) {};
+	: condition(move(c)), statement(s), else_statement(e) {};
 
 ConditionalStatement::~ConditionalStatement(){
 	delete statement;
 	if (else_statement != nullptr)
 		delete else_statement;
 }
-Jump ConditionalStatement::execute(Scope::Sptr scope)
+Jump ConditionalStatement::execute(Scope::Sptr scope)  const
 {
 	if (condition->evaluate(scope))
 		return statement->execute(scope);
@@ -43,31 +46,91 @@ Jump ConditionalStatement::execute(Scope::Sptr scope)
 
 
 WhileStatement::WhileStatement(IEvalable::Uptr c, Statement* s)
-	: condition(std::move(c)), statement(s) {};
+	: condition(move(c)), statement(s) {};
 
-WhileStatement::~WhileStatement(){
+WhileStatement::~WhileStatement() {
 	delete statement;
 }
-Jump WhileStatement::execute(Scope::Sptr scope)
+Jump WhileStatement::execute(Scope::Sptr scope)  const
 {
-	while (condition->evaluate(scope)){
+	while (condition->evaluate(scope)) {
 		Jump j = statement->execute(scope);
 		switch (j.type) {
 			case Jump::RETURN:
-			case Jump::BREAK:
 			case Jump::ERROR: return j;
+			case Jump::BREAK: return Jump();
 		}
 	}
 	return Jump();
 };
 
 
-ReturnStatement::ReturnStatement(IEvalable::Uptr expression)
-	: expression(std::move(expression)) {};
-Jump ReturnStatement::execute(Scope::Sptr scope) {
-	return Jump(Jump::RETURN, expression->evaluate(scope));
+ForStatement::ForStatement(IEvalable::Uptr i, IEvalable::Uptr c, IEvalable::Uptr e, Statement* s)
+	: init(move(i)), condition(move(c)), end(move(e)), statement(s) {};
+
+ForStatement::~ForStatement() {
+	delete statement;
+}
+Jump ForStatement::execute(Scope::Sptr scope) const
+{
+	Scope::Sptr childScope = make_shared<Scope>(scope);
+	init->evaluate(childScope);
+	while (condition->evaluate(childScope)) {
+		Jump j = statement->execute(childScope);
+		switch (j.type) {
+			case Jump::RETURN:
+			case Jump::ERROR: return j;
+			case Jump::BREAK: return Jump();
+		}
+		end->evaluate(childScope);
+	}
+	return Jump();
 };
 
+TryCatchStatement::TryCatchStatement(Statement* try_s, Statement* catch_s, Variable catch_a)
+	: try_s(try_s), catch_s(catch_s), catch_a(catch_a) {};
+TryCatchStatement::~TryCatchStatement() {
+	delete try_s;
+	delete catch_s;
+}
+Jump TryCatchStatement::execute(Scope::Sptr scope) const
+{
+	Jump j;
+	try {
+		j = try_s->execute(scope);
+		if (j.type != Jump::ERROR) {
+			return j;
+		}
+	}
+	catch (exception e) {
+		j = Jump(Jump::ERROR, Value(string(e.what())));
+	}
+
+	Scope::Sptr childScope = make_shared<Scope>(scope);
+	childScope->define(catch_a, j.value);
+
+	return catch_s->execute(childScope);
+}
+
+
+JumpStatement::JumpStatement(Jump::Type type)
+	: type(type) {};
+JumpStatement::JumpStatement(Jump::Type type, IEvalable::Uptr e)
+	: type(type), expression(std::move(e)) {};
+Jump JumpStatement::execute(Scope::Sptr scope) const
+{
+	if (type == Jump::ERROR) {
+		if (expression)
+			my_error(string(expression->evaluate(scope)));
+		else
+			my_error("exception with no value");
+	} else {
+		if (expression)
+			return Jump(type, expression->evaluate(scope));
+		else
+			return Jump(type);
+	}
+}
 
 CompoundStatement::~CompoundStatement() {
 	while (!statements.empty()) {
@@ -78,7 +141,8 @@ CompoundStatement::~CompoundStatement() {
 void CompoundStatement::add(Statement* s) {
 	statements.push_back(s);
 }
-Jump CompoundStatement::execute(Scope::Sptr scope) {
+Jump CompoundStatement::execute(Scope::Sptr scope) const
+{
 	Scope::Sptr childScope = make_shared<Scope>(scope);
 	for (Statement* s : statements)
 	{

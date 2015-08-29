@@ -1,7 +1,6 @@
 #pragma once
 
 #include "stdafx.h"
-#include "Utils.h"
 
 class Value;
 class Variable;
@@ -28,5 +27,6 @@ private:
 	map<unsigned int, Value> vars;
 	Sptr parent;
 	bool root;
+	bool disposed = false;
 
 };

@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "Utils.h"
 #include "Parser.h"
 #include "Expression.h"
 #include "TokenStream.h"
 #include "Value.h"
 #include "Function.h"
 #include "Program.h"
+#include "Jump.h"
 
 Parser::Parser() {};
 
@@ -56,11 +56,15 @@ Statement* Parser::statement()
 	Token t = ts->get();
 
 	switch (t.type) {
-		case Token::EOL: return new EmptyStatement;
-		case Token::FOR: return for_statement();
-		case Token::WHILE: return while_statement();
-		case Token::IF: return if_statement();
-		case Token::RETURN: return return_statement();
+		case Token::EOL:		return new EmptyStatement;
+		case Token::FOR:		return for_statement();
+		case Token::WHILE:		return while_statement();
+		case Token::IF:			return if_statement();
+		case Token::RETURN:		return jump_statement(Jump::RETURN);
+		case Token::BREAK:		return jump_statement(Jump::BREAK);
+		case Token::CONTINUE:	return jump_statement(Jump::CONTINUE);
+		case Token::THROW:		return jump_statement(Jump::ERROR);
+		case Token::TRY:		return try_statement();
 		case Token::OPEN_BRACE: return compound_statement();
 		default: {
 			ts->putback(t);
@@ -70,21 +74,87 @@ Statement* Parser::statement()
 
 }
 
+Statement* Parser::try_statement()
+{
+	Statement* try_s = statement();
+	if (ts->get().type != Token::CATCH) {
+		my_error("expected catch after try");
+	}
+	if (ts->get().type != Token::OPEN_BRACKET) {
+		my_error("expected catch after try");
+	}
+	Token t = ts->get();
+	if (t.type != Token::NAME) {
+		my_error("expected argument for catch");
+	}
+	Variable catch_a = Variable(t.name);
+	if (ts->get().type != Token::CLOSE_BRACKET) {
+		my_error("expected close bracket after catch argument");
+	}
+	Statement* catch_s = statement();
+
+	return new TryCatchStatement(try_s, catch_s, catch_a);
+
+}
+
+Statement* Parser::jump_statement(Jump::Type type)
+{
+	return new JumpStatement(type, expression_or_empty());
+}
+
 Statement* Parser::for_statement()
 {
-	return new EmptyStatement();
+	Token t = ts->get();
+	if (t.type != Token::OPEN_BRACKET) {
+		my_error("expected open bracket after conditional keyword");
+	}
+
+	IEvalable::Uptr i = for_expression(Value());
+	IEvalable::Uptr c = for_expression(Value(true));
+	IEvalable::Uptr e = for_expression(Value());
+
+	return new ForStatement(move(i), move(c), move(e), statement());
+
+
+}
+
+IEvalable::Uptr Parser::for_expression(Value value)
+{
+	Token t = ts->get();
+	switch (t.type) {
+		case Token::CLOSE_BRACKET:
+		case Token::EOL: return move(IEvalable::Uptr(new ValueExpression(value)));
+		default: {
+			ts->putback(t);
+			auto e = expression();
+			t = ts->get();
+			switch (t.type) {
+				case Token::CLOSE_BRACKET:
+				case Token::EOL: return move(e);
+				default: my_error("error parsing optional expression");
+			}
+		}
+
+	}
+}
+
+IEvalable::Uptr Parser::expression_or_empty()
+{
+	Token t = ts->get();
+	switch (t.type) {
+		case Token::EOL: return move(IEvalable::Uptr(new ValueExpression(Value())));
+		default: {
+			ts->putback(t);
+			return expression();
+		}
+	}
 }
 
 Statement* Parser::while_statement()
 {
 	auto c = condition();
 	Statement* s = statement();
-	return new WhileStatement(std::move(c), s);
-}
-
-Statement* Parser::return_statement()
-{
-	return new ReturnStatement(expression());
+	return new WhileStatement(move(c), s);
 }
 
 Statement* Parser::if_statement()
@@ -96,10 +166,10 @@ Statement* Parser::if_statement()
 	Token t = ts->get();
 	if (t.type != Token::ELSE) {
 		ts->putback(t);
-		return new ConditionalStatement(std::move(c), s);
+		return new ConditionalStatement(move(c), s);
 	}
 
-	return new ConditionalStatement(std::move(c), s, statement());
+	return new ConditionalStatement(move(c), s, statement());
 
 }
 
@@ -110,11 +180,6 @@ IEvalable::Uptr Parser::condition()
 		my_error("expected open bracket after conditional keyword");
 	}
 
-	t = ts->get();
-	if (t.type == Token::CLOSE_BRACKET) {
-		my_error("expected expression in condition");
-	}
-	ts->putback(t);
 	auto c = expression();
 
 	t = ts->get();
@@ -124,6 +189,8 @@ IEvalable::Uptr Parser::condition()
 
 	return c;
 }
+
+
 
 IEvalable::Uptr Parser::expression()
 {
@@ -198,7 +265,7 @@ IEvalable::Uptr Parser::relational_expression()
 		case Token::INEQ:
 		case Token::STRICT_EQ:
 		case Token::STRICT_INEQ: {
-			return IEvalable::Uptr(new BinaryExpression(t.type, std::move(lh), additive_expression()));
+			return IEvalable::Uptr(new BinaryExpression(t.type, move(lh), additive_expression()));
 		}
 		default: {
 			ts->putback(t);
@@ -216,7 +283,7 @@ IEvalable::Uptr Parser::additive_expression()
 		switch (t.type) {
 		case Token::Type::MINUS:
 		case Token::Type::PLUS: {
-			lh = std::move(IEvalable::Uptr(new BinaryExpression(t.type, std::move(lh), multiplicative_expression())));
+			lh = move(IEvalable::Uptr(new BinaryExpression(t.type, move(lh), multiplicative_expression())));
 			break;
 		}
 		default:
@@ -237,7 +304,7 @@ IEvalable::Uptr Parser::multiplicative_expression()
 		case Token::Type::SLASH:
 		case Token::Type::MODULO: {
 			IEvalable::Uptr rh = multiplicative_expression();
-			return IEvalable::Uptr(new BinaryExpression(t.type, std::move(lh), std::move(rh)));
+			return IEvalable::Uptr(new BinaryExpression(t.type, move(lh), move(rh)));
 		}
 		default:
 			ts->putback(t);
@@ -265,7 +332,7 @@ IEvalable::Uptr Parser::unary_expression()
 
 			while (t2.type == Token::OPEN_BRACKET) {
 				ts->putback(t2);
-				p = std::move(function_call(std::move(p)));
+				p = move(function_call(move(p)));
 				t2 = ts->get();
 			}
 			ts->putback(t2);
@@ -367,7 +434,7 @@ IEvalable::Uptr Parser::function()
 			}
 		}
 	}
-	auto fn = Function::Sptr(new Function(argument_names, statement()));
+	auto fn = Function::Sptr(new Function(argument_names, *statement()));
 	return IEvalable::Uptr(new FunctionDeclaration(Value(fn)));
 
 }
@@ -403,6 +470,6 @@ IEvalable::Uptr Parser::function_call(IEvalable::Uptr exp)
 		}
 
 	}
-	return IEvalable::Uptr(new FunctionCall(std::move(exp), arguments));
+	return IEvalable::Uptr(new FunctionCall(move(exp), arguments));
 
 }

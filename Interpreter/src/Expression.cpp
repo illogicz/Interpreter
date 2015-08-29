@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-#include "Utils.h"
 #include "Value.h"
 #include "Jump.h"
 #include "Expression.h"
@@ -23,13 +22,15 @@ Value ValueExpression::evaluate(Scope::Sptr scope) {
 Value UnaryExpression::evaluate(Scope::Sptr scope) {
 	Value v = lh->evaluate(scope);
 	switch (op) {
-		case Token::PLUS: break;
-		case Token::MINUS: v = -v; break;
+		case Token::PLUS: return v;
+		case Token::MINUS: return -v;
+		case Token::NOT: return !v;
 		default: {
 			my_error("Unimplemented unary expression");
+			return v;
 		}
 	}
-	return v;
+
 };
  
 Value BinaryExpression::evaluate(Scope::Sptr scope) {
@@ -40,6 +41,14 @@ Value BinaryExpression::evaluate(Scope::Sptr scope) {
 		case Token::MINUS: return l - r;
 		case Token::STAR: return l * r;
 		case Token::SLASH: return l / r;
+		case Token::STRICT_EQ: return l == r;
+		case Token::STRICT_INEQ: return l != r;
+		case Token::EQ: return l.equality(r);
+		case Token::INEQ: return l.inequality(r);
+		case Token::GT: return l > r;
+		case Token::GTE: return l >= r;
+		case Token::LT: return l < r;
+		case Token::LTE: return l <= r;
 		default: {
 			my_error("Unimplemented binary expression");
 		}
@@ -57,11 +66,11 @@ Value AssignExpression::evaluate(Scope::Sptr scope) {
 	Value l = variable.evaluate(scope);
 	Value r = rh->evaluate(scope);
 	switch (op) {
-		case Token::ASSIGN: l = r;  break;
-		case Token::ADD_ASSIGN: l += r; break;
+		case Token::ASSIGN:			 l = r;  break;
+		case Token::ADD_ASSIGN:		 l += r; break;
 		case Token::SUBTRACT_ASSIGN: l -= r; break;
 		case Token::MULTIPLY_ASSIGN: l *= r; break;
-		case Token::DIVIDE_ASSIGN: l /= r; break;
+		case Token::DIVIDE_ASSIGN:	 l /= r; break;
 		default: {
 			my_error("Unimplemented assign expression");
 		}
@@ -91,16 +100,11 @@ FunctionCall::~FunctionCall() {
 }
 Value FunctionCall::evaluate(Scope::Sptr scope) {
 
-	Value v = lh->evaluate(scope);
-	if (v.type != Value::FUNCTION) {
-		my_error("Not a function");
-	}
-
 	vector<Value> argument_values;
 	for (size_t i = 0; i < arguments.size(); i++) {
 		argument_values.push_back(arguments[i]->evaluate(scope));
 	}
-	return v.func->execute(v.closure, argument_values).value;
+	return lh->evaluate(scope)(argument_values);
 
 };
 

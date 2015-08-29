@@ -1,6 +1,7 @@
 #include "stdafx.h"
-#include "Utils.h"
 #include "TokenStream.h"
+#include "Token.h"
+
 
 void TokenStream::putback(Token token)
 {
@@ -91,26 +92,14 @@ Token TokenStream::get()
 			while (stream.get(ch) && (isalpha(ch) || isdigit(ch) || ch == '_')) name += ch;
 			stream.putback(ch);
 
-			Token::Type t = Token::NAME;
-
-			
-				 if (name == KEYW_ELSE)		t = Token::ELSE;
-			else if (name == KEYW_IF)		t = Token::IF;
-			else if (name == KEYW_FOR)		t = Token::FOR;
-			else if (name == KEYW_WHILE)	t = Token::WHILE;
-			else if (name == KEYW_FUNCTION) t = Token::FUNCTION;
-			else if (name == KEYW_VAR)		t = Token::VAR;
-			else if (name == KEYW_RETURN)	t = Token::RETURN;
-			else if (name == KEYW_TRUE)		t = Token::TRUE;
-			else if (name == KEYW_FALSE)	t = Token::FALSE;
-
-			if (t == Token::NAME)
-				return Token(t, name);
+			if (Token::KeyWords.count(name))
+				return Token(Token::KeyWords.find(name)->second);
 			else
-				return Token(t);
+				return Token(Token::NAME, name);
+
 
 		}
-		throw exception("invalid token: ");
+		my_error("invalid token: " + string(1, ch));
 	}
 	}
 	return Token(Token::EOFILE);
@@ -206,6 +195,6 @@ inline Token TokenStream::get_mat(char m1, char m2, Token match00, Token match10
 	}
 	else {
 		stream.putback(ch2);
-		return Token(match11);
+		return Token(match00);
 	}
 }

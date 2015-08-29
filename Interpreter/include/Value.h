@@ -1,5 +1,5 @@
 #pragma once
-#include "Utils.h"
+
 #include "Function.h"
 #include "Scope.h"
 
@@ -9,8 +9,8 @@ class Value {
 			NUMBER,
 			STRING,
 			BOOLEAN,
-			//OBJECT,
-			//ARRAY,
+			// NaN, // ???
+			// OBJECT,
 			FUNCTION,
 			UNDEFINED
 		};
@@ -18,7 +18,7 @@ class Value {
 		Type type;
 		double num;
 		string str;
-		bool boolean;
+		bool bln;
 		Function::Sptr func;
 		Scope::Sptr closure;
 
@@ -28,15 +28,11 @@ class Value {
 		Value(string v);
 		Value(bool v);
 		Value(Function::Sptr v);
-		void print();
-
 
 		Value& operator+=(const Value& rhs);
-		Value operator+();
 		friend Value operator+(Value lhs, const Value& rhs);
 
 		Value& operator-=(const Value& rhs);
-		Value operator-();
 		friend Value operator-(Value lhs, const Value& rhs);
 
 		Value& operator*=(const Value& rhs);
@@ -47,8 +43,24 @@ class Value {
 
 		Value& operator--();
 		Value& operator++();
+		Value operator+();
+		Value operator-();
+		Value operator!();
+
+		bool operator==(const Value& value) const;
+		bool operator!=(const Value& value) const;
+		bool equality(const Value& value) const;
+		bool inequality(const Value& value) const;
+		bool operator<(const Value& value) const;
+		bool operator<=(const Value& value) const;
+		bool operator>(const Value& value) const;
+		bool operator>=(const Value& value) const;
+
+		Value operator()(const vector<Value>& args);
 
 		operator bool() const;
+		operator string() const;
+		operator double() const;
 };
 
 

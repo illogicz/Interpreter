@@ -2,17 +2,6 @@
 
 #include "stdafx.h"
 
-const string KEYW_VAR = "var";
-const string KEYW_FUNCTION = "function";
-const string KEYW_IF = "if";
-const string KEYW_ELSE = "else";
-const string KEYW_RETURN = "return";
-const string KEYW_WHILE = "while";
-const string KEYW_FOR = "for";
-const string KEYW_TRUE = "true";
-const string KEYW_FALSE = "false";
-
-
 struct Token {
 	enum Type {
 		NOOP,				//
@@ -69,12 +58,19 @@ struct Token {
 		FALSE,				// false
 		FUNCTION,			// function
 		RETURN,				// return
+		BREAK,				// break
+		CONTINUE,			// continue
 		IF,					// if
 		ELSE,				// else
 		WHILE,				// while
 		FOR,				// for
 		VAR,				// var
+		THROW,				// throw
+		TRY,				// try
+		CATCH,				// catch
 	};
+
+	static const map<string, Token::Type> KeyWords;
 
 	Type type;
 	double value;
@@ -83,3 +79,4 @@ struct Token {
 	Token(Type t, double v) : type(t), value(v) {}
 	Token(Type t, string n) : type(t), name(n) {}
 };
+

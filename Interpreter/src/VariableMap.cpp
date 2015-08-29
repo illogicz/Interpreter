@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-#include "Utils.h"
 #include "VariableMap.h"
 
 map<string, unsigned int> VariableMap::name_to_id = {};

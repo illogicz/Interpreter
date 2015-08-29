@@ -11,13 +11,12 @@ class Jump;
 class Function {
 	private:
 		vector<Variable> argument_names;
-		Statement* statement;
+		const Statement& statement;
 
 	public:
-		Function() {};
-		Function(vector<Variable> argument_names, Statement* statement);
+		Function(vector<Variable> argument_names, const Statement& statement);
 		~Function();
-		Jump execute(Scope::Sptr scope, vector<Value>& arguments);
+		Jump execute(Scope::Sptr scope, const vector<Value>& arguments);
 		typedef shared_ptr<Function> Sptr;
 };
 
