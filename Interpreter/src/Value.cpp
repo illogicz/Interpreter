@@ -6,21 +6,21 @@
 #include "Function.h"
 #include "Statement.h"
 
-Value::Value() : Value(0.0) {};
+Value::Value() : type(UNDEFINED) {};
 Value::Value(Type t)   : type(t) {};
-Value::Value(double v) : type(Value::Type::NUMBER),  num(v) {};
-Value::Value(string v) : type(Value::Type::STRING),  str(v) {};
-Value::Value(bool v) : type(Value::Type::BOOLEAN), boolean(v) {};
-Value::Value(Function::Sptr v) : type(Value::Type::FUNCTION), func(v) {};
+Value::Value(double v) : type(NUMBER),  num(v) {};
+Value::Value(string v) : type(STRING),  str(v) {};
+Value::Value(bool v) : type(BOOLEAN), boolean(v) {};
+Value::Value(Function::Sptr v) : type(FUNCTION), func(v) {};
 
 void Value::print()
 {
 	switch (type) {
-		case Type::NUMBER:    cout << num;					return;
-		case Type::STRING:    cout << "\"" << str << "\"";	return;
-		case Type::BOOLEAN:   cout << boolean;				return;
-		case Type::FUNCTION:  cout << "function";			return;
-		case Type::UNDEFINED: cout << "undefined";			return;
+		case NUMBER:    cout << num;					return;
+		case STRING:    cout << "\"" << str << "\"";	return;
+		case BOOLEAN:   cout << boolean;				return;
+		case FUNCTION:  cout << "function";			return;
+		case UNDEFINED: cout << "undefined";			return;
 	}
 }
 
@@ -29,8 +29,8 @@ Value& Value::operator+=(const Value& rhs)
 {
 	if (type == rhs.type) {
 		switch (type) {
-			case Value::NUMBER: num += rhs.num; break;
-			case Value::STRING: str += rhs.str; break;
+			case NUMBER: num += rhs.num; break;
+			case STRING: str += rhs.str; break;
 			default: {
 				my_error("can only add numbers and strings");
 			}
@@ -61,7 +61,7 @@ Value operator+(Value lhs, const Value& rhs)
 
 Value& Value::operator-=(const Value& rhs)
 {
-	if (type == Type::NUMBER && rhs.type == Type::NUMBER) {
+	if (type == NUMBER && rhs.type == NUMBER) {
 		num -= rhs.num;
 	}
 	return *this;
@@ -83,7 +83,7 @@ Value operator-(Value lhs, const Value& rhs)
 
 Value& Value::operator*=(const Value& rhs)
 {
-	if (type == Type::NUMBER && rhs.type == Type::NUMBER) {
+	if (type == NUMBER && rhs.type == NUMBER) {
 		num *= rhs.num;
 	}
 	else {
@@ -100,7 +100,7 @@ Value operator*(Value lhs, const Value& rhs)
 
 Value& Value::operator/=(const Value& rhs)
 {
-	if (type == Type::NUMBER && rhs.type == Type::NUMBER) {
+	if (type == NUMBER && rhs.type == NUMBER) {
 		if (rhs.num == 0) {
 			my_error("divide by 0");
 		}

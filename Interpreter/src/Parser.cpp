@@ -56,6 +56,7 @@ Statement* Parser::statement()
 	Token t = ts->get();
 
 	switch (t.type) {
+		case Token::EOL: return new EmptyStatement;
 		case Token::FOR: return for_statement();
 		case Token::WHILE: return while_statement();
 		case Token::IF: return if_statement();

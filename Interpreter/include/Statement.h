@@ -14,6 +14,10 @@ class Statement {
 
 };
 
+class EmptyStatement : public Statement {
+	Jump execute(Scope::Sptr scope);
+};
+
 class ConditionalStatement : public Statement {
 	public:
 		ConditionalStatement(IEvalable::Uptr c, Statement* s);

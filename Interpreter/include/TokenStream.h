@@ -4,6 +4,7 @@
 
 #include "Token.h"
 
+//using Token::Type;
 
 class TokenStream {
 public:

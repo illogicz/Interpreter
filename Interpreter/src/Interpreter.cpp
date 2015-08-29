@@ -7,7 +7,7 @@ int main()
 {
 	{
 		// open file stream
-		ifstream file("code.txt");
+		ifstream file("code.js");
 
 		// make token stream
 		TokenStream ts(file);

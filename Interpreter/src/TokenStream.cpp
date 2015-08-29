@@ -45,13 +45,26 @@ Token TokenStream::get()
 	case '^': return get_if('=', Token::BITWISE_XOR, Token::BITWISE_XOR_ASSIGN);
 	case '~': return get_if('=', Token::BITWISE_NOT, Token::BITWISE_NOT_ASSIGN);
 	case '*': return get_if('=', Token::STAR, Token::MULTIPLY_ASSIGN);
-	case '/': return get_if('=', Token::SLASH, Token::DIVIDE_ASSIGN);
 	case '=': return get_if('=', '=', Token::ASSIGN, Token::EQ, Token::STRICT_EQ);
 	case '!': return get_if('=', '=', Token::NOT, Token::INEQ, Token::STRICT_INEQ);
 	case '&': return get_mat('&', '=', Token::BITWISE_AND, Token::AND, Token::BITWISE_AND_ASSIGN, Token::AND_ASSIGN);
 	case '|': return get_mat('|', '=', Token::BITWISE_OR, Token::OR, Token::BITWISE_OR_ASSIGN, Token::OR_ASSIGN);
 	case '<': return get_mat('<', '=', Token::LT, Token::SHIFT_LEFT, Token::LTE, Token::SHIFT_LEFT_ASSIGN);
 	case '>': return get_mat('>', '=', Token::GT, Token::SHIFT_RIGHT, Token::GTE, Token::SHIFT_RIGHT_ASSIGN);
+	case '/': {
+		ch = stream.get();
+		switch(ch){
+			case '/':
+				while (stream && stream.get() != '\n');
+				return get();
+			case '*':
+				while (stream && !(stream.get() == '*' && stream.get() == '/'));
+				return get();
+			default:
+				stream.putback(ch);
+				return get_if('=', Token::SLASH, Token::DIVIDE_ASSIGN);
+		}
+	}
 	case '-':
 	case '+': return get_additive(ch);
 	case '"': return get_string();
@@ -108,6 +121,7 @@ inline bool TokenStream::is_white(char ch)
 	switch (ch) {
 	case ' ':
 	case '\n':
+	case '\r':
 	case '\t': return true;
 	default: return false;
 	}

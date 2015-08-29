@@ -13,6 +13,7 @@ class Jump {
 		};
 		Type type;
 		Value value;
-		Jump(Type type);
-		Jump(Value value);
+		Jump() : type(NONE) {};
+		Jump(Type type) : type(type), value(Value(Value::UNDEFINED)) {};
+		Jump(Type type, Value value) : type(type), value(value) {};
 };

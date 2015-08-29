@@ -8,11 +8,7 @@
 #include "Jump.h"
 #include "Utils.h"
 
-Jump::Jump(Type type)
-	: type(type) {};
-Jump::Jump(Value value)
-	: type(RETURN), value(value) {};
-
+Jump EmptyStatement::execute(Scope::Sptr scope) { return Jump(); }
 
 ExpressionStatement::ExpressionStatement(IEvalable::Uptr expression) 
 	: expression(std::move(expression)) {};
@@ -20,6 +16,9 @@ Jump ExpressionStatement::execute(Scope::Sptr scope) {
 	expression->evaluate(scope);
 	return Jump(Jump::NONE);
 };
+
+
+
 
 ConditionalStatement::ConditionalStatement(IEvalable::Uptr c, Statement* s)
 	: condition(std::move(c)), statement(s) {};
@@ -45,7 +44,7 @@ Jump ConditionalStatement::execute(Scope::Sptr scope)
 ReturnStatement::ReturnStatement(IEvalable::Uptr expression)
 	: expression(std::move(expression)) {};
 Jump ReturnStatement::execute(Scope::Sptr scope) {
-	return Jump(expression->evaluate(scope));
+	return Jump(Jump::RETURN, expression->evaluate(scope));
 };
 
 
@@ -78,7 +77,6 @@ Program::Program()
 
 Program::~Program()
 {
-	debug("Program destructor");
 	scope->dispose();
 }
 
