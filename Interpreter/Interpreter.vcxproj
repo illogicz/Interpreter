@@ -72,6 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <SourcePath>src</SourcePath>
+    <IncludePath>include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -147,42 +149,41 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
     </Text>
     <Text Include="Grammar.txt" />
-    <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Function.h" />
-    <ClInclude Include="IEvalable.h" />
-    <ClInclude Include="Jump.h" />
-    <ClInclude Include="Parser.h" />
-    <ClInclude Include="Program.h" />
-    <ClInclude Include="Statement.h" />
-    <ClInclude Include="Expression.h" />
-    <ClInclude Include="Scope.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
-    <ClInclude Include="Token.h" />
-    <ClInclude Include="TokenStream.h" />
-    <ClInclude Include="Utils.h" />
-    <ClInclude Include="Value.h" />
-    <ClInclude Include="VariableMap.h" />
+    <ClInclude Include="include\Expression.h" />
+    <ClInclude Include="include\Function.h" />
+    <ClInclude Include="include\IEvalable.h" />
+    <ClInclude Include="include\Jump.h" />
+    <ClInclude Include="include\Parser.h" />
+    <ClInclude Include="include\Program.h" />
+    <ClInclude Include="include\Scope.h" />
+    <ClInclude Include="include\Statement.h" />
+    <ClInclude Include="include\stdafx.h" />
+    <ClInclude Include="include\targetver.h" />
+    <ClInclude Include="include\Token.h" />
+    <ClInclude Include="include\TokenStream.h" />
+    <ClInclude Include="include\Utils.h" />
+    <ClInclude Include="include\Value.h" />
+    <ClInclude Include="include\VariableMap.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Interpreter.cpp" />
-    <ClCompile Include="Expression.cpp" />
-    <ClCompile Include="Function.cpp" />
-    <ClCompile Include="Parser.cpp" />
-    <ClCompile Include="Statement.cpp" />
-    <ClCompile Include="TokenStream.cpp" />
-    <ClCompile Include="Scope.cpp" />
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="src\Expression.cpp" />
+    <ClCompile Include="src\Function.cpp" />
+    <ClCompile Include="src\Interpreter.cpp" />
+    <ClCompile Include="src\Parser.cpp" />
+    <ClCompile Include="src\Scope.cpp" />
+    <ClCompile Include="src\Statement.cpp" />
+    <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Utils.cpp" />
-    <ClCompile Include="Value.cpp" />
-    <ClCompile Include="VariableMap.cpp" />
+    <ClCompile Include="src\TokenStream.cpp" />
+    <ClCompile Include="src\Utils.cpp" />
+    <ClCompile Include="src\Value.cpp" />
+    <ClCompile Include="src\VariableMap.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Debug\Interperer.pch" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

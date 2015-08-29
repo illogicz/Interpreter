@@ -33,90 +33,92 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
     <Text Include="Grammar.txt" />
     <Text Include="code.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="include\Expression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="include\Function.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TokenStream.h">
-      <Filter>Header Files\Scanner</Filter>
-    </ClInclude>
-    <ClInclude Include="Token.h">
-      <Filter>Header Files\Scanner</Filter>
-    </ClInclude>
-    <ClInclude Include="Value.h">
-      <Filter>Header Files\Runtime</Filter>
-    </ClInclude>
-    <ClInclude Include="Scope.h">
-      <Filter>Header Files\Runtime</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils.h">
+    <ClInclude Include="include\IEvalable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Statement.h">
-      <Filter>Header Files\Runtime</Filter>
+    <ClInclude Include="include\Jump.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Parser.h">
-      <Filter>Header Files\Parser</Filter>
+    <ClInclude Include="include\Parser.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IEvalable.h">
-      <Filter>Header Files\Runtime</Filter>
+    <ClInclude Include="include\Program.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Expression.h">
-      <Filter>Header Files\Runtime</Filter>
+    <ClInclude Include="include\Scope.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Jump.h">
-      <Filter>Header Files\Runtime</Filter>
+    <ClInclude Include="include\Statement.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Function.h">
-      <Filter>Header Files\Runtime</Filter>
+    <ClInclude Include="include\Token.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VariableMap.h">
-      <Filter>Header Files\Runtime</Filter>
+    <ClInclude Include="include\TokenStream.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Program.h">
-      <Filter>Header Files\Runtime</Filter>
+    <ClInclude Include="include\Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Value.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VariableMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stdafx.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="src\Expression.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Interpreter.cpp">
+    <ClCompile Include="src\Function.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Scope.cpp">
-      <Filter>Source Files\Runtime</Filter>
-    </ClCompile>
-    <ClCompile Include="Value.cpp">
-      <Filter>Source Files\Runtime</Filter>
-    </ClCompile>
-    <ClCompile Include="TokenStream.cpp">
-      <Filter>Source Files\Scanner</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils.cpp">
+    <ClCompile Include="src\Interpreter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Parser.cpp">
-      <Filter>Source Files\Parser</Filter>
+    <ClCompile Include="src\Parser.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Statement.cpp">
-      <Filter>Source Files\Runtime</Filter>
+    <ClCompile Include="src\Scope.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Expression.cpp">
-      <Filter>Source Files\Runtime</Filter>
+    <ClCompile Include="src\Statement.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VariableMap.cpp">
-      <Filter>Source Files\Runtime</Filter>
+    <ClCompile Include="src\TokenStream.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Function.cpp">
-      <Filter>Source Files\Runtime</Filter>
+    <ClCompile Include="src\Utils.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Value.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VariableMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Debug\Interperer.pch" />
   </ItemGroup>
 </Project>

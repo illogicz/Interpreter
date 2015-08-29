@@ -1,4 +1,5 @@
 #include "stdafx.h"
+
 #include "Utils.h"
 #include "Value.h"
 #include "Jump.h"
@@ -30,7 +31,7 @@ Value UnaryExpression::evaluate(Scope::Sptr scope) {
 	}
 	return v;
 };
-
+ 
 Value BinaryExpression::evaluate(Scope::Sptr scope) {
 	Value l = lh->evaluate(scope);
 	Value r = rh->evaluate(scope);
@@ -91,7 +92,6 @@ Value FunctionCall::evaluate(Scope::Sptr scope) {
 		my_error("Not a function");
 	}
 
-	//Function::Sptr f = v.func;
 	vector<Value> argument_values;
 	for (size_t i = 0; i < arguments.size(); i++) {
 		argument_values.push_back(arguments[i]->evaluate(scope));
