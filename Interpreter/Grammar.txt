@@ -1,0 +1,111 @@
+Statement:
+	Compound_Statement
+	Expression
+	Jump_Statement
+	Loop_Statement
+	"return" Expression
+	"break"
+
+Compound_Statement:
+	"{" Statement "}"
+
+Loop_Statement
+	"while" "(" Expression ")" Statement
+	"for" "(" Expression ";" Expression ";" Expression ")" Statement
+
+Jump_Statement
+	If_Statement
+	If_Statement "else" Statement
+
+If_Statement
+	"if" "(" Expression ")" Statement
+
+
+Expression
+	Assignment_Expression
+	Relational_Expression
+
+Assignment_Expression:
+	"var" Name "=" Expression
+	Name assign_operator Expression
+	//"function" Name "(" Names ")" Statement
+
+Relational_Expression
+	Additive_Expression
+	Additive_Expression relational_operator Additive_Expression
+
+Additive_Expression:
+	Multiplicative_Expression
+	Additive_Expression "+" Multiplicative_Expression
+	Additive_Expression "-" Multiplicative_Expression
+
+Multiplicative_Expression:
+	Unary_Expression
+	Unary_Expression "*" Multiplicative_Expression
+	Unary_Expression "/" Multiplicative_Expression
+	Unary_Expression "%" Multiplicative_Expression
+
+Unary_Expression
+	Primary
+	"-" Primary
+	"+" Primary
+	"!" Primary
+	"~" Primary
+	
+Primary:
+	Boolean
+	Number
+	String
+	Name
+	Function
+	"--" Name
+	"++" Name
+	Name "--" 
+	Name "++" 
+	Primary "(" Expressions ")"
+	Unary Expression
+	"(" Expression ")"
+
+
+Function:
+	"function" "(" Names ")"  Statement
+
+String
+	'"' ^" '"'
+
+Boolean:
+	"true"
+	"false"
+
+Number:
+	floating-point-literal
+
+Name:
+	string-literal alpha + (numeric | alpha | "_")
+
+
+
+assign_operator
+	"="
+	"+="
+	"-="
+	"*="
+	"%="
+	"&="
+	"&&="
+	"|="
+	"||="
+	"<<="
+	">>="
+
+relational_operator
+	"<"
+	">"
+	"<="
+	">="
+	"=="
+	"==="
+	"!="
+	"!=="
+
+
