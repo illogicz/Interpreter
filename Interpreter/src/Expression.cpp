@@ -72,10 +72,14 @@ Value AssignExpression::evaluate(Scope::Sptr scope) {
 };
 
 Value UnaryAssignExpression::evaluate(Scope::Sptr scope) {
-	Value value = scope->get(variable);
-	//check if number, post or
-	scope->set(variable, value);
-	return value;
+	Value oldvalue = scope->get(variable);
+	Value newvalue = oldvalue;
+	switch (op) {
+		case Token::INCREMENT: ++newvalue; break;
+		case Token::DECREMENT: --newvalue; break;
+	}
+	scope->set(variable, newvalue);
+	return type == POSTFIX ? oldvalue : newvalue;
 };
 
 

@@ -21,3 +21,9 @@ var f2 = f();
 
 var t = 5;
 t /= 2;
+
+var i = 10;
+var j = 0;
+while (i--)
+    j += 2;
+

@@ -121,14 +121,36 @@ Value operator/(Value lhs, const Value& rhs)
 Value::operator bool() const
 {
 	switch (type) {
-		case NUMBER: {
-			debug("number -> bool:" + to_string(num != 0));
-			return num != 0;
-		}
+		case NUMBER: return num != 0;
 		case STRING: return str != "";
 		case BOOLEAN: return boolean;
 		case FUNCTION: return true;
 		case UNDEFINED: return false;
 		default: return false;
 	}
+}
+
+
+Value& Value::operator--()
+{
+	switch (type) {
+		case NUMBER: --num; break;
+		case UNDEFINED: break;
+		default: {
+			my_error("type not decrementable");
+		}
+	}
+	return *this;
+}
+
+Value& Value::operator++()
+{
+	switch (type) {
+		case NUMBER: ++num; break;
+		case UNDEFINED: break;
+		default: {
+			my_error("type not incrementable");
+		}
+	}
+	return *this;
 }

@@ -30,6 +30,16 @@ class ConditionalStatement : public Statement {
 		Statement* else_statement;
 };
 
+class WhileStatement : public Statement {
+	public:
+		WhileStatement(IEvalable::Uptr c, Statement* s);
+		~WhileStatement();
+		Jump execute(Scope::Sptr scope);
+private:
+		IEvalable::Uptr condition;
+		Statement* statement;
+};
+
 class ReturnStatement : public Statement {
 	public:
 		IEvalable::Uptr expression;

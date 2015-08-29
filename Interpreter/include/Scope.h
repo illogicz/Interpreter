@@ -12,18 +12,11 @@ class Scope {
 		typedef shared_ptr<Scope> Sptr;
 
 		int depth = 0;
-		Scope() : root(true) {
-			cout << "root scope created" << endl;
-		};
+		Scope() : root(true) {};
 		Scope(Sptr p) : root(false) {
 			parent = Scope::Sptr(p);
-			cout << "child scope created, depth = " << p->depth + 1  << endl;
 			depth = p->depth + 1;
 		};
-		~Scope()
-		{
-			debug("scope dtor " + to_string(depth));
-		}
 		void set(const Variable& v, Value value);
 		Value get(const Variable& v);
 		void define(const Variable& v, Value value);

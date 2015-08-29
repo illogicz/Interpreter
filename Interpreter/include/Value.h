@@ -45,6 +45,9 @@ class Value {
 		Value& operator/=(const Value& rhs);
 		friend Value operator/(Value lhs, const Value& rhs);
 
+		Value& operator--();
+		Value& operator++();
+
 		operator bool() const;
 };
 

@@ -20,7 +20,8 @@ class Parser {
 		Statement* while_statement();
 		Statement* if_statement();
 		Statement* return_statement();
-
+		
+		IEvalable::Uptr condition();
 		IEvalable::Uptr expression();
 		IEvalable::Uptr relational_expression();
 		IEvalable::Uptr additive_expression();

@@ -22,10 +22,11 @@ Jump ExpressionStatement::execute(Scope::Sptr scope) {
 
 ConditionalStatement::ConditionalStatement(IEvalable::Uptr c, Statement* s)
 	: condition(std::move(c)), statement(s) {};
+
 ConditionalStatement::ConditionalStatement(IEvalable::Uptr c, Statement* s, Statement* e)
 	: condition(std::move(c)), statement(s), else_statement(e) {};
-ConditionalStatement::~ConditionalStatement()
-{
+
+ConditionalStatement::~ConditionalStatement(){
 	delete statement;
 	if (else_statement != nullptr)
 		delete else_statement;
@@ -39,6 +40,26 @@ Jump ConditionalStatement::execute(Scope::Sptr scope)
 	else
 		return Jump(Jump::NONE);
 }
+
+
+WhileStatement::WhileStatement(IEvalable::Uptr c, Statement* s)
+	: condition(std::move(c)), statement(s) {};
+
+WhileStatement::~WhileStatement(){
+	delete statement;
+}
+Jump WhileStatement::execute(Scope::Sptr scope)
+{
+	while (condition->evaluate(scope)){
+		Jump j = statement->execute(scope);
+		switch (j.type) {
+			case Jump::RETURN:
+			case Jump::BREAK:
+			case Jump::ERROR: return j;
+		}
+	}
+	return Jump();
+};
 
 
 ReturnStatement::ReturnStatement(IEvalable::Uptr expression)
@@ -59,15 +80,12 @@ void CompoundStatement::add(Statement* s) {
 }
 Jump CompoundStatement::execute(Scope::Sptr scope) {
 	Scope::Sptr childScope = make_shared<Scope>(scope);
-	Jump j(Jump::NONE);
 	for (Statement* s : statements)
 	{
-		j = s->execute(childScope);
-		if (j.type == Jump::RETURN || j.type == Jump::BREAK) {
-			break;
-		}
+		Jump j = s->execute(childScope);
+		if (j.type != Jump::NONE) return j;
 	}
-	return j;
+	return Jump();
 }
 
 Program::Program()

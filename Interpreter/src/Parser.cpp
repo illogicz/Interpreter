@@ -72,12 +72,14 @@ Statement* Parser::statement()
 
 Statement* Parser::for_statement()
 {
-	return new CompoundStatement();
+	return new EmptyStatement();
 }
 
 Statement* Parser::while_statement()
 {
-	return new CompoundStatement();
+	auto c = condition();
+	Statement* s = statement();
+	return new WhileStatement(std::move(c), s);
 }
 
 Statement* Parser::return_statement()
@@ -87,26 +89,11 @@ Statement* Parser::return_statement()
 
 Statement* Parser::if_statement()
 {
-	Token t = ts->get();
-	if (t.type != Token::OPEN_BRACKET) {
-		my_error("expected open bracket after if keyword");
-	}
 
-	t = ts->get();
-	if (t.type == Token::CLOSE_BRACKET) {
-		my_error("expected expression in if statement");
-	}
-	ts->putback(t);
-	auto c = expression();
-
-	t = ts->get();
-	if (t.type != Token::CLOSE_BRACKET) {
-		my_error("expected closing bracket after if condition");
-	}
-
+	auto c = condition();
 	Statement* s = statement();
 
-	t = ts->get();
+	Token t = ts->get();
 	if (t.type != Token::ELSE) {
 		ts->putback(t);
 		return new ConditionalStatement(std::move(c), s);
@@ -116,6 +103,27 @@ Statement* Parser::if_statement()
 
 }
 
+IEvalable::Uptr Parser::condition()
+{
+	Token t = ts->get();
+	if (t.type != Token::OPEN_BRACKET) {
+		my_error("expected open bracket after conditional keyword");
+	}
+
+	t = ts->get();
+	if (t.type == Token::CLOSE_BRACKET) {
+		my_error("expected expression in condition");
+	}
+	ts->putback(t);
+	auto c = expression();
+
+	t = ts->get();
+	if (t.type != Token::CLOSE_BRACKET) {
+		my_error("expected closing bracket after condition");
+	}
+
+	return c;
+}
 
 IEvalable::Uptr Parser::expression()
 {
@@ -297,7 +305,7 @@ IEvalable::Uptr Parser::primary()
 				my_error("can only increment or decrement variables");
 			}
 			return IEvalable::Uptr(new UnaryAssignExpression(
-				   UnaryAssignExpression::PREFIX, t2.type, Variable(t2.name)));
+				   UnaryAssignExpression::PREFIX, t.type, Variable(t2.name)));
 		}
 		case Token::PLUS:
 		case Token::MINUS:
