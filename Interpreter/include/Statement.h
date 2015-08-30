@@ -12,9 +12,11 @@ class Statement {
 
 };
 
+
 class EmptyStatement : public Statement {
 	Jump execute(Scope::Sptr scope) const;
 };
+
 
 class ConditionalStatement : public Statement {
 	public:
@@ -28,6 +30,7 @@ class ConditionalStatement : public Statement {
 		Statement* else_statement;
 };
 
+
 class WhileStatement : public Statement {
 public:
 	WhileStatement(IEvalable::Uptr c, Statement* s);
@@ -37,6 +40,7 @@ private:
 	IEvalable::Uptr condition;
 	Statement* statement;
 };
+
 
 class ForStatement : public Statement {
 public:
@@ -50,6 +54,7 @@ private:
 	Statement* statement;
 };
 
+
 class TryCatchStatement : public Statement {
 public:
 	TryCatchStatement(Statement* try_s, Statement* catch_s, Variable catch_a);
@@ -60,21 +65,8 @@ private:
 	Statement* catch_s;
 	Variable catch_a;
 };
-/**
-class ReturnStatement : public Statement {
-	public:
-		IEvalable::Uptr expression;
-		ReturnStatement(IEvalable::Uptr expression);
-		Jump execute(Scope::Sptr scope) const;
-};
 
-class ThrowStatement : public Statement {
-public:
-	IEvalable::Uptr expression;
-	ThrowStatement(IEvalable::Uptr expression);
-	Jump execute(Scope::Sptr scope) const;
-};
-*/
+
 class JumpStatement : public Statement {
 private:
 	Jump::Type type;
@@ -85,12 +77,14 @@ public:
 	Jump execute(Scope::Sptr scope)  const;
 };
 
+
 class ExpressionStatement : public Statement {
 	public:
 		IEvalable::Uptr expression;
 		ExpressionStatement(IEvalable::Uptr expression);
 		Jump execute(Scope::Sptr scope) const;
 };
+
 
 class CompoundStatement : public Statement {
 	protected:

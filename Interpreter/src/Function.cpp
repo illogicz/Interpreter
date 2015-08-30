@@ -17,7 +17,7 @@ Function::~Function()
 }
 
 Jump Function::execute(Scope::Sptr scope, const vector<Value>& arguments) {
-	auto childScope = make_shared<Scope>(scope);
+	auto childScope = scope->makeChild();
 	if (argument_names.size() != arguments.size()) {
 		my_error("incorrect number of arguments");
 	}

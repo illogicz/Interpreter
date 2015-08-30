@@ -3,6 +3,8 @@
 #include "Scope.h"
 #include "VariableMap.h"
 
+int Scope::count = 0;
+
 
 void Scope::set(const Variable& v, Value value) {
 	if (!defined(v)) {
@@ -47,19 +49,21 @@ void Scope::dispose()
 {
 	if (disposed) return;
 	disposed = true;
-	for (auto& var : vars) {
-		if (var.second.closure) {
-			var.second.closure->dispose();
+	for (auto& child : children) {
+		if (auto spt = child.lock()){
+			spt->dispose();
 		}
 	}
+	children.clear();
 	vars.clear();
+}
 
-	//for (auto& var : vars) {
-	//	vars.erase(var.first);
-	//	if (var.second.closure) {
-	//		var.second.closure->dispose();
-	//	}
-	//}
+
+Scope::Sptr Scope::makeChild()
+{
+	auto child = make_shared<Scope>(shared_from_this());
+	children.push_back(child);
+	return child;
 }
 
 void Scope::print() {

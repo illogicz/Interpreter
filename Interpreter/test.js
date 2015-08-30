@@ -6,6 +6,7 @@ var assert_equals = function(fn, val)
         ret += "Passed : ";
     } else {
         ret += "Failed : ";
+        all_tests_passed = false;
     }
     return ret + val + " === " + test
 }
@@ -14,35 +15,39 @@ var assert_equals = function(fn, val)
 var closure_test = function()
 {
     var a = 0;
-    var b = 1;
+    var b = 2;
     var c = 0;
-    var d = 1;
-    var e = 1;
+    var d = 4;
+    var e = 5;
     var f = function(g)
     {
         a = 1;
         var b = -1;
         b = 0;
         var d = -1;
-        h = 1;
-        //j = 1;
+        h = 7;
         return function(g)
         {
             var e = -1;
             e = 0;
-            c = 1;
+            c = 3;
             d = 0;
-            i = 1;
+            i = 8;
+            try {
+                j = 0;
+            } catch (e) {
+                k = 10;
+            }
             return g;
-            j = 0;
         }
     }
     var h = 0;
     var i = 0;
-    var g = f(0)(1);
-    var j = 1;
+    var k = 0;
+    var g = f(0)(6);
+    var j = 9;
 
-    return "" + a + b + c + d + e + g + h + i + j;
+    return "" + a + b + c + d + e + g + h + i + j + k;
 
 }
 
@@ -137,7 +142,7 @@ var try_catch = function()
 
 }
 
-
-var closure = assert_equals(closure_test, "111111111");
+var all_tests_passed = true;
+var closure = assert_equals(closure_test, "12345678910");
 var for_r = assert_equals(for_test, "10101010101010");
 var try_catch_r = assert_equals(try_catch, "11 variable 'undef' is undefined my_err inner_outer");

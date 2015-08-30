@@ -73,7 +73,7 @@ ForStatement::~ForStatement() {
 }
 Jump ForStatement::execute(Scope::Sptr scope) const
 {
-	Scope::Sptr childScope = make_shared<Scope>(scope);
+	auto childScope = scope->makeChild();
 	init->evaluate(childScope);
 	while (condition->evaluate(childScope)) {
 		Jump j = statement->execute(childScope);
@@ -106,7 +106,7 @@ Jump TryCatchStatement::execute(Scope::Sptr scope) const
 		j = Jump(Jump::ERROR, Value(string(e.what())));
 	}
 
-	Scope::Sptr childScope = make_shared<Scope>(scope);
+	Scope::Sptr childScope = scope->makeChild() ;
 	childScope->define(catch_a, j.value);
 
 	return catch_s->execute(childScope);
@@ -143,7 +143,7 @@ void CompoundStatement::add(Statement* s) {
 }
 Jump CompoundStatement::execute(Scope::Sptr scope) const
 {
-	Scope::Sptr childScope = make_shared<Scope>(scope);
+	auto childScope = scope->makeChild();
 	for (Statement* s : statements)
 	{
 		Jump j = s->execute(childScope);
