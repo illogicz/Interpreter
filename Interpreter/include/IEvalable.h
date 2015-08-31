@@ -9,6 +9,6 @@ public:
 	virtual ~IEvalable() {}
 	IEvalable() {}
 	typedef unique_ptr<IEvalable> Uptr;
-	virtual Value evaluate(Scope::Sptr scope) = 0;
+	virtual Value operator()(Scope::Sptr scope) = 0;
 };
 

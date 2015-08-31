@@ -168,12 +168,15 @@
     <ClInclude Include="include\Utils.h" />
     <ClInclude Include="include\Value.h" />
     <ClInclude Include="include\VariableMap.h" />
+    <ClInclude Include="include\Environment.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Environment.cpp" />
     <ClCompile Include="src\Expression.cpp" />
     <ClCompile Include="src\Function.cpp" />
     <ClCompile Include="src\Interpreter.cpp" />
     <ClCompile Include="src\Parser.cpp" />
+    <ClCompile Include="src\Program.cpp" />
     <ClCompile Include="src\Scope.cpp" />
     <ClCompile Include="src\Statement.cpp" />
     <ClCompile Include="src\stdafx.cpp">

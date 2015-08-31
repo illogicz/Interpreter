@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Statement.h"
-#include "Scope.h"
+#include "Environment.h"
 #include "Jump.h"
 
-class Program : public CompoundStatement {
+class Program {
 public:
-	Program();
+	Program(Statement* js);
 	~Program();
+	Statement* js;
 	Scope::Sptr scope;
 	Jump execute();
 };

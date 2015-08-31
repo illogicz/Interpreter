@@ -18,6 +18,8 @@
 #include <map>
 #include <fstream>
 #include <memory>
+#include <forward_list>
+#include <set>
 
 using namespace std;
 

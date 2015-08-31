@@ -11,32 +11,31 @@
 Variable::Variable(string name):
 	id(VariableMap::get_id(name)) {};
 
-Value Variable::evaluate(Scope::Sptr scope) {
+Value Variable::operator()(Scope::Sptr scope) {
 	return scope->get(*this);
 }
 
-Value ValueExpression::evaluate(Scope::Sptr scope) {
+Value ValueExpression::operator()(Scope::Sptr scope) {
 	return val;
 };
 
-Value UnaryExpression::evaluate(Scope::Sptr scope) {
-	Value v = lh->evaluate(scope);
+Value UnaryExpression::operator()(Scope::Sptr scope) {
+	Value v = (*lh)(scope);
 	switch (op) {
 		case Token::PLUS: return v;
 		case Token::MINUS: return -v;
 		case Token::NOT: return !v;
 		case Token::TYPEOF:return v.typeof();
 		default: {
-			my_error("Unimplemented unary expression");
+			error("Unimplemented unary expression");
 			return v;
 		}
 	}
-
 };
  
-Value BinaryExpression::evaluate(Scope::Sptr scope) {
-	Value l = lh->evaluate(scope);
-	Value r = rh->evaluate(scope);
+Value BinaryExpression::operator()(Scope::Sptr scope) {
+	Value l = (*lh)(scope);
+	Value r = (*rh)(scope);
 	switch (op) {
 		case Token::PLUS:		return l + r;
 		case Token::MINUS:		return l - r;
@@ -56,21 +55,21 @@ Value BinaryExpression::evaluate(Scope::Sptr scope) {
 		case Token::OR:			return l || r;
 		case Token::AND:		return l && r;
 		default: {
-			my_error("Unimplemented binary expression");
+			error("Unimplemented binary expression");
 		}
 	}
 	return Value();
 };
 
-Value DeclareExpression::evaluate(Scope::Sptr scope) {
-	Value value = rh->evaluate(scope);
+Value DeclareExpression::operator()(Scope::Sptr scope) {
+	Value value = (*rh)(scope);
 	scope->define(variable, value);
 	return value;
 };
 
-Value AssignExpression::evaluate(Scope::Sptr scope) {
-	Value l = variable.evaluate(scope);
-	Value r = rh->evaluate(scope);
+Value AssignExpression::operator()(Scope::Sptr scope) {
+	Value l = variable(scope);
+	Value r = (*rh)(scope);
 	switch (op) {
 		case Token::ASSIGN:				l = r;   break;
 		case Token::ADD_ASSIGN:			l += r;  break;
@@ -81,7 +80,7 @@ Value AssignExpression::evaluate(Scope::Sptr scope) {
 		case Token::SHIFT_LEFT_ASSIGN:	l <<= r; break;
 		case Token::SHIFT_RIGHT_ASSIGN:	l >>= r; break;
 		default: {
-			my_error("Unimplemented assign expression");
+			error("Unimplemented assign expression");
 		}
 	}
 	
@@ -89,7 +88,7 @@ Value AssignExpression::evaluate(Scope::Sptr scope) {
 	return l;
 };
 
-Value UnaryAssignExpression::evaluate(Scope::Sptr scope) {
+Value UnaryAssignExpression::operator()(Scope::Sptr scope) {
 	Value oldvalue = scope->get(variable);
 	Value newvalue = oldvalue;
 	switch (op) {
@@ -107,26 +106,24 @@ FunctionCall::~FunctionCall() {
 		arguments.pop_back();
 	}
 }
-Value FunctionCall::evaluate(Scope::Sptr scope) {
+Value FunctionCall::operator()(Scope::Sptr scope) {
 
 	vector<Value> argument_values;
 	for (auto& arg : arguments) {
-		argument_values.push_back(arg->evaluate(scope));
+		argument_values.push_back((*arg)(scope));
 	}
-	return lh->evaluate(scope)(argument_values);
+	return (*lh)(scope)(argument_values);
 
 };
 
-Value FunctionDeclaration::evaluate(Scope::Sptr scope) {
-	Value cpy = val;
-	cpy.closure = scope;
-	return cpy;
+Value FunctionDeclaration::operator()(Scope::Sptr scope) {
+	return Value(func, scope);
 };
 
 
-Value NamedFunctionDeclaration::evaluate(Scope::Sptr scope)
+Value NamedFunctionDeclaration::operator()(Scope::Sptr scope)
 {
-	Value v = FunctionDeclaration::evaluate(scope);
+	Value v = FunctionDeclaration::operator()(scope);
 	scope->define(var, v);
 	return v;
 }

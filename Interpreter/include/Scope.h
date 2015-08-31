@@ -15,17 +15,16 @@ class Scope : public enable_shared_from_this<Scope> {
 		int depth = 0;
 		Scope() : root(true) {
 			count++;
+			msg("created");
 		};
 		Scope(Sptr p) : root(false), parent(move(p)){
 			count++;
 			depth = parent->depth + 1;
+			msg("created");
 		};
 		~Scope() {
-			count--;
-			if (!count) {
-				debug("all scopes destroyed");
-			}
-
+			--count;
+			msg("destroyed");
 		}
 		void set(const Variable& v, Value value);
 		Value get(const Variable& v);
@@ -35,12 +34,12 @@ class Scope : public enable_shared_from_this<Scope> {
 		void dispose();
 		void print();
 
+
 private:
+	void msg(const string& type) const;
 	map<unsigned int, Value> vars;
 	Sptr parent;
 	bool root;
 	bool disposed = false;
-	vector<weak_ptr<Scope>> children;
-
-
+	forward_list<weak_ptr<Scope>> children;
 };

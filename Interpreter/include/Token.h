@@ -6,7 +6,7 @@ struct Token {
 	enum Type {
 		NOOP,				//
 		NUMBER,				// 23
-		NAME,				// foo
+		IDENTIFIER,			// foo
 		STRING,				// "foo"
 		EOL,				// ;
 		EOFILE,				// \0
@@ -77,6 +77,7 @@ struct Token {
 	Type type;
 	double value;
 	string name;
+	Token() {};
 	Token(Type t) : type(t), value(0) {}
 	Token(Type t, double v) : type(t), value(v) {}
 	Token(Type t, string n) : type(t), name(n) {}

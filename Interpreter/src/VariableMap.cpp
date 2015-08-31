@@ -18,7 +18,7 @@ unsigned int VariableMap::get_id(const string& name)
 string VariableMap::get_name(unsigned int id)
 {
 	if (!id_to_name.count(id)) {
-		my_error("internal error: undefined variable id");
+		error("internal error: undefined variable id");
 	}
 	return id_to_name[id];
 } 

@@ -95,11 +95,11 @@ Token TokenStream::get()
 			if (Token::KeyWords.count(name))
 				return Token(Token::KeyWords.find(name)->second);
 			else
-				return Token(Token::NAME, name);
+				return Token(Token::IDENTIFIER, name);
 
 
 		}
-		my_error("invalid token: " + string(1, ch));
+		error("invalid token: " + string(1, ch));
 	}
 	}
 	return Token(Token::EOFILE);
@@ -155,7 +155,7 @@ inline Token TokenStream::get_string()
 				case 'r': ch = '\r';
 				case '\\':
 				case '"': ch = ch2;
-				default: my_error("Invalid escape sequence");
+				default: error("Invalid escape sequence");
 			}
 		}
 		str.append(1, ch);

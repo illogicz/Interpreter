@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-#include "Program.h"
 #include "Value.h"
 #include "Scope.h"
 #include "Statement.h"
@@ -16,7 +15,7 @@ ExpressionStatement::ExpressionStatement(IEvalable::Uptr expression)
 	: expression(move(expression)) {};
 Jump ExpressionStatement::execute(Scope::Sptr scope)  const 
 {
-	expression->evaluate(scope);
+	(*expression)(scope);
 	return Jump(Jump::NONE);
 };
 
@@ -36,7 +35,7 @@ ConditionalStatement::~ConditionalStatement(){
 }
 Jump ConditionalStatement::execute(Scope::Sptr scope)  const
 {
-	if (condition->evaluate(scope))
+	if ((*condition)(scope))
 		return statement->execute(scope);
 	else if (else_statement != nullptr)
 		return else_statement->execute(scope);
@@ -53,7 +52,7 @@ WhileStatement::~WhileStatement() {
 }
 Jump WhileStatement::execute(Scope::Sptr scope)  const
 {
-	while (condition->evaluate(scope)) {
+	while ((*condition)(scope)) {
 		Jump j = statement->execute(scope);
 		switch (j.type) {
 			case Jump::RETURN:
@@ -73,16 +72,15 @@ ForStatement::~ForStatement() {
 }
 Jump ForStatement::execute(Scope::Sptr scope) const
 {
-	auto childScope = scope->makeChild();
-	init->evaluate(childScope);
-	while (condition->evaluate(childScope)) {
-		Jump j = statement->execute(childScope);
+	(*init)(scope);
+	while ((*condition)(scope)) {
+		Jump j = statement->execute(scope);
 		switch (j.type) {
 			case Jump::RETURN:
 			case Jump::ERROR: return j;
 			case Jump::BREAK: return Jump();
 		}
-		end->evaluate(childScope);
+		(*end)(scope);
 	}
 	return Jump();
 };
@@ -106,10 +104,9 @@ Jump TryCatchStatement::execute(Scope::Sptr scope) const
 		j = Jump(Jump::ERROR, Value(string(e.what())));
 	}
 
-	auto childScope = scope->makeChild() ;
-	childScope->define(catch_a, j.value);
+	scope->define(catch_a, j.value);
 
-	return catch_s->execute(childScope);
+	return catch_s->execute(scope);
 }
 
 
@@ -121,15 +118,16 @@ Jump JumpStatement::execute(Scope::Sptr scope) const
 {
 	if (type == Jump::ERROR) {
 		if (expression)
-			my_error(string(expression->evaluate(scope)));
+			error(string((*expression)(scope)));
 		else
-			my_error("exception with no value");
+			error("exception with no value");
 	} else {
 		if (expression)
-			return Jump(type, expression->evaluate(scope));
+			return Jump(type, (*expression)(scope));
 		else
 			return Jump(type);
 	}
+	return Jump();
 }
 
 CompoundStatement::~CompoundStatement() {
@@ -143,34 +141,10 @@ void CompoundStatement::add(Statement* s) {
 }
 Jump CompoundStatement::execute(Scope::Sptr scope) const
 {
-	auto childScope = scope->makeChild();
 	for (Statement* s : statements)
 	{
-		Jump j = s->execute(childScope);
+		Jump j = s->execute(scope);
 		if (j.type != Jump::NONE) return j;
 	}
 	return Jump();
-}
-
-Program::Program()
-{
-	scope = make_shared<Scope>();
-}
-
-Program::~Program()
-{
-	scope->dispose();
-}
-
-Jump Program::execute() {
-	Jump j(Jump::NONE);
-	for (Statement* s : statements)
-	{
-		j = s->execute(scope);
-		if (j.type == Jump::RETURN || j.type == Jump::BREAK) {
-			cout << "uncaught return or break statement";
-			break;
-		}
-	}
-	return j;
 }

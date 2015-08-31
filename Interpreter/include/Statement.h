@@ -93,5 +93,4 @@ class CompoundStatement : public Statement {
 		~CompoundStatement();
 		void add(Statement* s);
 		Jump execute(Scope::Sptr scope) const;
-
 };

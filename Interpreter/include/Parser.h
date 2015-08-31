@@ -5,6 +5,7 @@
 #include "Jump.h"
 
 class Statement;
+class CompoundStatement;
 class Program;
 
 class Parser {
@@ -16,9 +17,11 @@ class Parser {
 		TokenStream* ts;
 
 		Statement* statement();
+		Statement* block();
+		Statement* statement_l();
+
 		Statement* jump_statement(Jump::Type type);
 		Statement* try_statement();
-		Statement* compound_statement();
 		Statement* for_statement();
 		Statement* while_statement();
 		Statement* if_statement();

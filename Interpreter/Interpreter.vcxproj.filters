@@ -83,6 +83,9 @@
     <ClInclude Include="include\Token.h">
       <Filter>Header Files\Scanner</Filter>
     </ClInclude>
+    <ClInclude Include="include\Environment.h">
+      <Filter>Header Files\Runtime</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Utils.cpp">
@@ -120,6 +123,12 @@
     </ClCompile>
     <ClCompile Include="src\Token.cpp">
       <Filter>Source Files\Scanner</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Program.cpp">
+      <Filter>Source Files\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Environment.cpp">
+      <Filter>Source Files\Runtime</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

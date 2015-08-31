@@ -5,12 +5,13 @@
 #include "Function.h"
 #include "Statement.h"
 
-Value::Value() : type(UNDEFINED) {};
-Value::Value(Type t)   : type(t) {};
-Value::Value(double v) : type(NUMBER),  num(v) {};
-Value::Value(string v) : type(STRING),  str(v) {};
-Value::Value(bool v) : type(BOOLEAN), bln(v) {};
-Value::Value(Function::Sptr v) : type(FUNCTION), func(v) {};
+Value::Value()			: type(UNDEFINED) {};
+Value::Value(Type t)	: type(t) {};
+Value::Value(double v)	: type(NUMBER),  num(v) {};
+Value::Value(string v)	: type(STRING),  str(v) {};
+Value::Value(bool v)	: type(BOOLEAN), bln(v) {};
+Value::Value(IFunction::Sptr f, Scope::Sptr s) 
+						: type(FUNCTION), func(f), closure(s) {};
 
 
 // strict;
@@ -49,14 +50,14 @@ bool Value::equality(const Value& rhs) const
 					try {
 						return double(rhs) == num;
 					} catch (exception e) {
-						my_error("warning: failed casting string to double for comparison");
+						error("warning: failed casting string to double for comparison");
 					}
 					return false;
 				}
 			}
 	}
 
-	my_error("internal error: undefined/impossible comparison");
+	error("internal error: undefined/impossible comparison");
 	return false;
 }
 
@@ -65,8 +66,8 @@ bool Value::inequality(const Value& rhs) const {
 }
 
 
-bool Value::operator     < (const Value& value) const {
-	return double(*this) < double(value);
+bool Value::operator     <  (const Value& value) const {
+	return double(*this) <  double(value);
 }
 bool Value::operator     <= (const Value& value) const {
 	return double(*this) <= double(value);
@@ -81,7 +82,8 @@ bool Value::operator     >= (const Value& value) const {
 
 Value& Value::operator+=(const Value& rhs)
 {
-	if (type == STRING || rhs.type == STRING || type == FUNCTION || rhs.type == FUNCTION) {
+	if (type == STRING   || rhs.type == STRING || 
+		type == FUNCTION || rhs.type == FUNCTION) {
 		str = string(*this) + string(rhs);
 		type = STRING;
 	}
@@ -93,8 +95,7 @@ Value& Value::operator+=(const Value& rhs)
 }
 Value operator+(Value lhs, const Value& rhs)
 {
-	lhs += rhs;
-	return lhs;
+	return lhs += rhs;
 }
 
 
@@ -106,8 +107,7 @@ Value& Value::operator-=(const Value& rhs)
 }
 Value operator-(Value lhs, const Value& rhs)
 {
-	lhs -= rhs;
-	return lhs;
+	return lhs -= rhs;
 }
 
 Value& Value::operator*=(const Value& rhs)
@@ -118,10 +118,8 @@ Value& Value::operator*=(const Value& rhs)
 }
 Value operator*(Value lhs, const Value& rhs)
 {
-	lhs *= rhs;
-	return lhs;
+	return lhs *= rhs;
 }
-
 
 Value& Value::operator/=(const Value& rhs)
 {
@@ -131,8 +129,7 @@ Value& Value::operator/=(const Value& rhs)
 }
 Value operator/(Value lhs, const Value& rhs)
 {
-	lhs /= rhs;
-	return lhs;
+	return lhs /= rhs;
 }
 
 
@@ -144,8 +141,7 @@ Value& Value::operator%=(const Value& rhs)
 }
 Value operator%(Value lhs, const Value& rhs)
 {
-	lhs %= rhs;
-	return lhs;
+	return lhs %= rhs;
 }
 
 
@@ -157,8 +153,7 @@ Value& Value::operator<<=(const Value& rhs)
 }
 Value operator<<(Value lhs, const Value& rhs)
 {
-	lhs <<= rhs;
-	return lhs;
+	return lhs <<= rhs;
 }
 
 
@@ -170,8 +165,7 @@ Value& Value::operator>>=(const Value& rhs)
 }
 Value operator>>(Value lhs, const Value& rhs)
 {
-	lhs >>= rhs;
-	return lhs;
+	return lhs >>= rhs;
 }
 
 Value operator||(Value lhs, const Value& rhs)
@@ -257,7 +251,7 @@ Value::operator int() const
 Value Value::operator()(const vector<Value>& args) const
 {
 	if (type != Value::FUNCTION) {
-		my_error("Not a function");
+		error("Not a function");
 	}
 	return func->execute(closure, args).value;
 }
