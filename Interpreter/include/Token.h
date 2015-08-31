@@ -13,7 +13,7 @@ struct Token {
 		PLUS,				// +		
 		MINUS,				// -
 		STAR,				// *
-		SLASH,				// /
+		DIVIDE,				// /
 		MODULO,				// %
 		MODULO_ASSIGN,		// %=
 		BITWISE_AND,		// &
@@ -68,6 +68,8 @@ struct Token {
 		THROW,				// throw
 		TRY,				// try
 		CATCH,				// catch
+		TYPEOF,				// typeof
+		UNDEFINED,			// undefined
 	};
 
 	static const map<string, Token::Type> KeyWords;

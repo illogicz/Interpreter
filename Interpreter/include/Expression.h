@@ -85,11 +85,20 @@ class UnaryAssignExpression : public IEvalable {
 };
 
 class FunctionDeclaration : public IEvalable {
-	private:
+	protected:
 		Value val;
 	public:
 		FunctionDeclaration(Value v) : val(v) {};
-		Value evaluate(Scope::Sptr scope);
+		virtual Value evaluate(Scope::Sptr scope);
+};
+
+class NamedFunctionDeclaration : public FunctionDeclaration {
+private:
+	Variable var;
+public:
+	NamedFunctionDeclaration(Value val, Variable var) :
+		FunctionDeclaration(val), var(var) {};
+	Value evaluate(Scope::Sptr scope);
 };
 
 

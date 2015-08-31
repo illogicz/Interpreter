@@ -106,7 +106,7 @@ Jump TryCatchStatement::execute(Scope::Sptr scope) const
 		j = Jump(Jump::ERROR, Value(string(e.what())));
 	}
 
-	Scope::Sptr childScope = scope->makeChild() ;
+	auto childScope = scope->makeChild() ;
 	childScope->define(catch_a, j.value);
 
 	return catch_s->execute(childScope);

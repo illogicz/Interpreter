@@ -41,26 +41,41 @@ class Value {
 		Value& operator/=(const Value& rhs);
 		friend Value operator/(Value lhs, const Value& rhs);
 
+		Value& operator%=(const Value& rhs);
+		friend Value operator%(Value lhs, const Value& rhs);
+
+		Value& operator<<=(const Value& rhs);
+		friend Value operator<<(Value lhs, const Value& rhs);
+
+		Value& operator>>=(const Value& rhs);
+		friend Value operator>>(Value lhs, const Value& rhs);
+
+		friend Value operator||(Value lhs, const Value& rhs);
+		friend Value operator&&(Value lhs, const Value& rhs);
+
 		Value& operator--();
 		Value& operator++();
-		Value operator+();
-		Value operator-();
-		Value operator!();
+		Value operator+() const;
+		Value operator-() const;
+		Value operator!() const;
 
-		bool operator==(const Value& value) const;
-		bool operator!=(const Value& value) const;
-		bool equality(const Value& value) const;
-		bool inequality(const Value& value) const;
-		bool operator<(const Value& value) const;
-		bool operator<=(const Value& value) const;
-		bool operator>(const Value& value) const;
-		bool operator>=(const Value& value) const;
+		bool equality    (const Value& value) const;
+		bool inequality  (const Value& value) const;
+		bool operator == (const Value& value) const;
+		bool operator != (const Value& value) const;
+		bool operator <  (const Value& value) const;
+		bool operator <= (const Value& value) const;
+		bool operator >  (const Value& value) const;
+		bool operator >= (const Value& value) const;
 
-		Value operator()(const vector<Value>& args);
+		Value operator()(const vector<Value>& args) const;
 
-		operator bool() const;
-		operator string() const;
-		operator double() const;
+		inline operator bool() const;
+		inline operator string() const;
+		inline operator double() const;
+		inline operator int() const;
+
+		Value typeof() const;
 };
 
 

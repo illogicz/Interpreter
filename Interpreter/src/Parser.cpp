@@ -203,7 +203,6 @@ IEvalable::Uptr Parser::expression()
 			switch (t2.type) {
 				case Token::ASSIGN:
 				case Token::ADD_ASSIGN:
-				case Token::AND_ASSIGN:
 				case Token::BITWISE_AND_ASSIGN:
 				case Token::BITWISE_NOT_ASSIGN:
 				case Token::BITWISE_OR_ASSIGN:
@@ -211,7 +210,6 @@ IEvalable::Uptr Parser::expression()
 				case Token::DIVIDE_ASSIGN:
 				case Token::MODULO_ASSIGN:
 				case Token::MULTIPLY_ASSIGN:
-				case Token::OR_ASSIGN:
 				case Token::SHIFT_LEFT_ASSIGN:
 				case Token::SHIFT_RIGHT_ASSIGN:
 				case Token::SUBTRACT_ASSIGN: {
@@ -220,7 +218,7 @@ IEvalable::Uptr Parser::expression()
 				default: {
 					ts->putback(t2);
 					ts->putback(t);
-					return relational_expression();
+					return logical_or_expression();
 				}
 			}
 
@@ -245,27 +243,57 @@ IEvalable::Uptr Parser::expression()
 
 		default: {
 			ts->putback(t);
-			return relational_expression();
+			return logical_or_expression();
 		}
 
 	}
 }
 
-IEvalable::Uptr Parser::relational_expression()
+IEvalable::Uptr Parser::logical_or_expression()
 {
-	IEvalable::Uptr lh = additive_expression();
+	IEvalable::Uptr lh = logical_and_expression();
+	while (true) {
+		Token t = ts->get();
+		switch (t.type) {
+			case Token::Type::OR: {
+				lh = IEvalable::Uptr(new BinaryExpression(t.type, move(lh), logical_and_expression()));
+				break;
+			}
+			default:
+				ts->putback(t);
+				return lh;
+		}
+	}
+};
+
+IEvalable::Uptr Parser::logical_and_expression()
+{
+	IEvalable::Uptr lh = equality_expression();
+	while (true) {
+		Token t = ts->get();
+		switch (t.type) {
+			case Token::Type::AND: {
+				lh = IEvalable::Uptr(new BinaryExpression(t.type, move(lh), equality_expression()));
+				break;
+			}
+			default:
+				ts->putback(t);
+				return lh;
+		}
+	}
+};
+
+IEvalable::Uptr Parser::equality_expression()
+{
+	IEvalable::Uptr lh = relational_expression();
 
 	Token t = ts->get();
 	switch (t.type) {
-		case Token::LT:
-		case Token::LTE:
-		case Token::GT:
-		case Token::GTE:
 		case Token::EQ:
 		case Token::INEQ:
 		case Token::STRICT_EQ:
 		case Token::STRICT_INEQ: {
-			return IEvalable::Uptr(new BinaryExpression(t.type, move(lh), additive_expression()));
+			return IEvalable::Uptr(new BinaryExpression(t.type, move(lh), relational_expression()));
 		}
 		default: {
 			ts->putback(t);
@@ -275,6 +303,48 @@ IEvalable::Uptr Parser::relational_expression()
 	}
 
 };
+
+IEvalable::Uptr Parser::relational_expression()
+{
+	IEvalable::Uptr lh = shift_expression();
+
+	Token t = ts->get();
+	switch (t.type) {
+		case Token::LT:
+		case Token::LTE:
+		case Token::GT:
+		case Token::GTE: {
+			return IEvalable::Uptr(new BinaryExpression(t.type, move(lh), shift_expression()));
+		}
+		default: {
+			ts->putback(t);
+			return lh;
+		}
+		
+	}
+
+};
+
+
+IEvalable::Uptr Parser::shift_expression()
+{
+	IEvalable::Uptr lh = additive_expression();
+	while (true) {
+		Token t = ts->get();
+		switch (t.type) {
+			case Token::Type::SHIFT_LEFT:
+			case Token::Type::SHIFT_RIGHT: {
+				lh = IEvalable::Uptr(new BinaryExpression(t.type, move(lh), additive_expression()));
+				break;
+			}
+			default:
+				ts->putback(t);
+				return lh;
+		}
+	}
+};
+
+
 IEvalable::Uptr Parser::additive_expression()
 {
 	IEvalable::Uptr lh = multiplicative_expression();
@@ -283,7 +353,7 @@ IEvalable::Uptr Parser::additive_expression()
 		switch (t.type) {
 		case Token::Type::MINUS:
 		case Token::Type::PLUS: {
-			lh = move(IEvalable::Uptr(new BinaryExpression(t.type, move(lh), multiplicative_expression())));
+			lh = IEvalable::Uptr(new BinaryExpression(t.type, move(lh), multiplicative_expression()));
 			break;
 		}
 		default:
@@ -301,7 +371,7 @@ IEvalable::Uptr Parser::multiplicative_expression()
 	Token t = ts->get();
 	switch (t.type) {
 		case Token::Type::STAR:
-		case Token::Type::SLASH:
+		case Token::Type::DIVIDE:
 		case Token::Type::MODULO: {
 			IEvalable::Uptr rh = multiplicative_expression();
 			return IEvalable::Uptr(new BinaryExpression(t.type, move(lh), move(rh)));
@@ -318,12 +388,11 @@ IEvalable::Uptr Parser::unary_expression()
 {
 	Token t = ts->get();
 	switch (t.type) {
-		case Token::Type::MINUS:
-		case Token::Type::PLUS:
-		case Token::Type::NOT:
-		case Token::Type::BITWISE_NOT: {
-			return IEvalable::Uptr(new UnaryExpression(t.type, primary()));
-		}
+		case Token::MINUS:
+		case Token::PLUS:
+		case Token::NOT:
+		case Token::BITWISE_NOT:
+		case Token::TYPEOF: return IEvalable::Uptr(new UnaryExpression(t.type, unary_expression()));
 		default: {
 			ts->putback(t);
 
@@ -351,10 +420,11 @@ IEvalable::Uptr Parser::primary()
 	Token t = ts->get();
 
 	switch (t.type) {
-		case Token::NUMBER: return IEvalable::Uptr(new ValueExpression(Value(t.value)));
-		case Token::STRING: return IEvalable::Uptr(new ValueExpression(Value(t.name)));
-		case Token::TRUE: return IEvalable::Uptr(new ValueExpression(Value(true)));
-		case Token::FALSE: return IEvalable::Uptr(new ValueExpression(Value(false)));
+		case Token::NUMBER:    return value(Value(t.value));
+		case Token::STRING:    return value(Value(t.name));
+		case Token::TRUE:	   return value(Value(true));
+		case Token::FALSE:	   return value(Value(false));
+		case Token::UNDEFINED: return value(Value());
 		case Token::NAME: {
 			Token t2 = ts->get();
 			if (t2.type == Token::DECREMENT || t2.type == Token::INCREMENT) {
@@ -374,10 +444,6 @@ IEvalable::Uptr Parser::primary()
 			return IEvalable::Uptr(new UnaryAssignExpression(
 				   UnaryAssignExpression::PREFIX, t.type, Variable(t2.name)));
 		}
-		case Token::PLUS:
-		case Token::MINUS:
-		case Token::NOT:
-		case Token::BITWISE_NOT: return IEvalable::Uptr(new UnaryExpression(t.type, unary_expression()));
 		case Token::OPEN_BRACKET: {
 			auto e = expression();
 			t = ts->get();
@@ -397,9 +463,20 @@ IEvalable::Uptr Parser::primary()
 
 }
 
+IEvalable::Uptr Parser::value(Value v)
+{
+	return IEvalable::Uptr(new ValueExpression(v));
+}
+
 IEvalable::Uptr Parser::function()
 {
 	Token t2 = ts->get();
+	string name = "";
+	if (t2.type == Token::NAME) {
+		name = t2.name;
+		t2 = ts->get();
+	}
+
 	if (t2.type != Token::OPEN_BRACKET) {
 		my_error("expected opening bracket after function keyword");
 	}
@@ -435,8 +512,11 @@ IEvalable::Uptr Parser::function()
 		}
 	}
 	auto fn = Function::Sptr(new Function(argument_names, *statement()));
-	return IEvalable::Uptr(new FunctionDeclaration(Value(fn)));
 
+	if (name != "")
+		return IEvalable::Uptr(new NamedFunctionDeclaration(Value(fn), Variable(name)));
+	else
+		return IEvalable::Uptr(new FunctionDeclaration(Value(fn)));
 }
 
 

@@ -12,13 +12,6 @@ Value::Value(string v) : type(STRING),  str(v) {};
 Value::Value(bool v) : type(BOOLEAN), bln(v) {};
 Value::Value(Function::Sptr v) : type(FUNCTION), func(v) {};
 
-Value operator+(Value lhs, const Value& rhs)
-{
-	lhs += rhs;
-	return lhs;
-}
-
-
 
 // strict;
 bool Value::operator==(const Value& rhs) const
@@ -34,8 +27,7 @@ bool Value::operator==(const Value& rhs) const
 	}
 }
 
-bool Value::operator!=(const Value& value) const
-{
+bool Value::operator!=(const Value& value) const {
 	return !(*this == value);
 }
 
@@ -68,22 +60,21 @@ bool Value::equality(const Value& rhs) const
 	return false;
 }
 
-bool Value::inequality(const Value& rhs) const
-{
+bool Value::inequality(const Value& rhs) const {
 	return !this->equality(rhs);
 }
 
 
-bool Value::operator<(const Value& value) const {
+bool Value::operator     < (const Value& value) const {
 	return double(*this) < double(value);
 }
-bool Value::operator<=(const Value& value) const {
+bool Value::operator     <= (const Value& value) const {
 	return double(*this) <= double(value);
 }
-bool Value::operator>(const Value& value) const {
-	return double(*this) > double(value);
+bool Value::operator     >  (const Value& value) const {
+	return double(*this) >  double(value);
 }
-bool Value::operator>=(const Value& value) const {
+bool Value::operator     >= (const Value& value) const {
 	return double(*this) >= double(value);
 }
 
@@ -100,16 +91,19 @@ Value& Value::operator+=(const Value& rhs)
 	}
 	return *this;
 }
-
-Value& Value::operator-=(const Value& rhs)
+Value operator+(Value lhs, const Value& rhs)
 {
-	if (type == NUMBER && rhs.type == NUMBER) {
-		num -= rhs.num;
-	}
-	return *this;
+	lhs += rhs;
+	return lhs;
 }
 
 
+Value& Value::operator-=(const Value& rhs)
+{
+	num = double(*this) - double(rhs);
+	type = NUMBER;
+	return *this;
+}
 Value operator-(Value lhs, const Value& rhs)
 {
 	lhs -= rhs;
@@ -118,41 +112,76 @@ Value operator-(Value lhs, const Value& rhs)
 
 Value& Value::operator*=(const Value& rhs)
 {
-	if (type == NUMBER && rhs.type == NUMBER) {
-		num *= rhs.num;
-	}
-	else {
-		my_error("* can only operate on numbers");
-	}
+	num = double(*this) * double(rhs);
+	type = NUMBER;
 	return *this;
 }
-
 Value operator*(Value lhs, const Value& rhs)
 {
 	lhs *= rhs;
 	return lhs;
 }
 
+
 Value& Value::operator/=(const Value& rhs)
 {
-	if (type == NUMBER && rhs.type == NUMBER) {
-		if (rhs.num == 0) {
-			num = numeric_limits<int>::max();
-		}
-		else {
-			num /= rhs.num;
-		}
-	}
-	else {
-		my_error("/ can only operate on numbers");
-	}
+	num = double(*this) / double(rhs);
+	type = NUMBER;
 	return *this;
 }
-
 Value operator/(Value lhs, const Value& rhs)
 {
 	lhs /= rhs;
 	return lhs;
+}
+
+
+Value& Value::operator%=(const Value& rhs)
+{
+	num = int(*this) % int(rhs);
+	type = NUMBER;
+	return *this;
+}
+Value operator%(Value lhs, const Value& rhs)
+{
+	lhs %= rhs;
+	return lhs;
+}
+
+
+Value& Value::operator<<=(const Value& rhs)
+{
+	num = int(*this) << int(rhs);
+	type = NUMBER;
+	return *this;
+}
+Value operator<<(Value lhs, const Value& rhs)
+{
+	lhs <<= rhs;
+	return lhs;
+}
+
+
+Value& Value::operator>>=(const Value& rhs)
+{
+	num = int(*this) >> int(rhs);
+	type = NUMBER;
+	return *this;
+}
+Value operator>>(Value lhs, const Value& rhs)
+{
+	lhs >>= rhs;
+	return lhs;
+}
+
+Value operator||(Value lhs, const Value& rhs)
+{
+	return Value(bool(lhs) || bool(rhs));
+}
+
+Value operator&&(Value lhs, const Value& rhs)
+{
+	return Value(bool(lhs) && bool(rhs));
 }
 
 Value& Value::operator++()
@@ -169,30 +198,20 @@ Value& Value::operator--()
 	return *this;
 }
 
-Value Value::operator+()
+Value Value::operator+() const
 {
 	return Value(double(*this));
 }
 
-Value Value::operator-()
+Value Value::operator-() const
 {
 	return Value(-double(*this));
 }
 
-Value Value::operator!()
+Value Value::operator!() const
 {
 	return Value(!bool(*this));
 }
-
-
-Value Value::operator()(const vector<Value>& args)
-{
-	if (type != Value::FUNCTION) {
-		my_error("Not a function");
-	}
-	return func->execute(closure, args).value;
-}
-
 
 Value::operator bool() const
 {
@@ -228,3 +247,30 @@ Value::operator double() const
 		default: return 0;
 	}
 }
+
+Value::operator int() const
+{
+	return int(double(*this));
+}
+
+
+Value Value::operator()(const vector<Value>& args) const
+{
+	if (type != Value::FUNCTION) {
+		my_error("Not a function");
+	}
+	return func->execute(closure, args).value;
+}
+
+Value Value::typeof() const
+{
+	string str;
+	switch (type) {
+		case NUMBER:    str = "number";    break;
+		case STRING:    str = "string";    break;
+		case BOOLEAN:   str = "boolean";   break;
+		case FUNCTION:  str = "function";  break;
+		case UNDEFINED: str = "undefined"; break;
+	}
+	return Value(str);
+};

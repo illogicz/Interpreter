@@ -63,7 +63,7 @@ Token TokenStream::get()
 				return get();
 			default:
 				stream.putback(ch);
-				return get_if('=', Token::SLASH, Token::DIVIDE_ASSIGN);
+				return get_if('=', Token::DIVIDE, Token::DIVIDE_ASSIGN);
 		}
 	}
 	case '-':

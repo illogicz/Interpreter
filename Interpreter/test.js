@@ -10,7 +10,13 @@ var assert_equals = function(fn, val)
     }
     return ret + val + " === " + test
 }
-
+//asd as
+/*
+as asd asd ** /dfasdfasdf
+*///asdas
+//*asxdfasdf
+/*/**
+***/
 
 var closure_test = function()
 {
@@ -26,6 +32,7 @@ var closure_test = function()
         b = 0;
         var d = -1;
         h = 7;
+        var l = f;
         return function(g)
         {
             var e = -1;
@@ -33,6 +40,7 @@ var closure_test = function()
             c = 3;
             d = 0;
             i = 8;
+            var z = l;
             try {
                 j = 0;
             } catch (e) {
@@ -44,11 +52,12 @@ var closure_test = function()
     var h = 0;
     var i = 0;
     var k = 0;
-    var g = f(0)(6);
+    var x = f(0)
+    var g = x(6);
     var j = 9;
 
     return "" + a + b + c + d + e + g + h + i + j + k;
-
+    // comment
 }
 
 var for_test = function()
@@ -93,6 +102,36 @@ var for_test = function()
     return "" + j + l + k + i + n + o + p;
 }
 
+
+var while_test = function () {
+    var i = 0
+    while (i < 10) i++;
+
+    var j = 20;
+    var f = 0;
+    var x = 0;
+    while (true) {
+        var sdfgas = 0;
+        f = function (e) {
+            x = e;
+        }
+        if (--j == 10) break;
+    }
+    f(10);
+    var k = 0;
+    var l = 0;
+    try {
+        while (true) //sadfg asdf
+            if (++k == 10)
+         /* asd*/throw 10
+    }
+    catch (e) {
+        l = e;
+    }
+
+    return "" + i + j + k + l + x;
+
+};
 
 var try_catch = function()
 {
@@ -142,7 +181,27 @@ var try_catch = function()
 
 }
 
+
+function named_function()
+{
+    return 10;
+}
+
+function shift_test() {
+    var is8 = 32 >> 2;
+    var is16 = 1 << 4;
+    var is32 = 128;
+    is32 >>= 2;
+    var is4 = 1;
+    is4 <<= 2;
+
+    return is4 === 4 && is8 === 8 && is16 === 16 && is32 === 32;
+}
+
 var all_tests_passed = true;
-var closure = assert_equals(closure_test, "12345678910");
-var for_r = assert_equals(for_test, "10101010101010");
+var shift =       assert_equals(shift_test, true);
+var named_fn =    assert_equals(named_function, 10);
+var closure =     assert_equals(closure_test, "12345678910");
+var for_r =       assert_equals(for_test, "10101010101010");
+var for_w =       assert_equals(while_test, "1010101010");
 var try_catch_r = assert_equals(try_catch, "11 variable 'undef' is undefined my_err inner_outer");
